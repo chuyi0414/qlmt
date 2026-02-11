@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Õ½¶·Á÷³Ì
+/// Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class CombatProcedure : ProcedureBase
 {
@@ -20,6 +20,7 @@ public class CombatProcedure : ProcedureBase
     {
         base.OnEnter(procedureOwner);
         _combatUIId = GameEntry.UI.OpenUIForm(GameAssetPath.GetUI("Combat/CombatUI"), "Main");
+        GameEntry.BgScroll.ManualStartScroll(true);
     }
 
     protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)

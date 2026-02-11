@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityGameFramework.Runtime;
-using GFGameEntry = UnityGameFramework.Runtime.GameEntry;
 
 
 /// <summary>
@@ -65,7 +64,7 @@ public sealed class EntityIdPoolComponent : GameFrameworkComponent
     /// </summary>
     private void Start()
     {
-        _eventComponent = GFGameEntry.GetComponent<EventComponent>();
+        _eventComponent = GameEntry.Event;
         if (_eventComponent == null)
         {
             Log.Error("实体 Id 池组件未找到 EventComponent。");
