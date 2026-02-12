@@ -9,134 +9,8 @@ using UnityGameFramework.Runtime;
 /// 背景滚动组件。
 /// 该组件负责驱动背景块沿 Y 轴负方向滚动，并根据相机视野执行补块与回收。
 /// </summary>
-public sealed class BgScrollComponent : GameFrameworkComponent
+public sealed partial class BgScrollComponent : GameFrameworkComponent
 {
-    /// <summary>
-    /// 背景块配置。
-    /// 用于描述某一类背景块资源、权重、主题与连接规则。
-    /// </summary>
-    [Serializable]
-    private sealed class BgChunkDefinition
-    {
-        /// <summary>
-        /// 背景块实体相对路径（相对于 Prefabs/Entity）。
-        /// 示例：Bg/Chunk_Forest_01。
-        /// </summary>
-        [SerializeField]
-        private string _entityRelativePath;
-
-        /// <summary>
-        /// 该背景块所属主题标签。
-        /// 为空表示通用背景块，可在任意主题下出现。
-        /// </summary>
-        [SerializeField]
-        private string _themeTag;
-
-        /// <summary>
-        /// 该背景块的随机权重。
-        /// 数值越大，被选中的概率越高。
-        /// </summary>
-        [SerializeField]
-        private float _weight = 1f;
-
-        /// <summary>
-        /// 该背景块的逻辑高度（世界单位）。
-        /// 用于预热、补块与回收判定，建议与预制体实际高度保持一致。
-        /// </summary>
-        [SerializeField]
-        private float _chunkLength = 10f;
-
-        /// <summary>
-        /// 允许跟随的前一主题列表。
-        /// 为空表示不限制；支持使用 * 表示允许跟随任意主题。
-        /// </summary>
-        [SerializeField]
-        private string[] _canFollowThemes;
-
-        /// <summary>
-        /// 获取实体相对路径。
-        /// </summary>
-        public string EntityRelativePath
-        {
-            get { return _entityRelativePath; }
-        }
-
-        /// <summary>
-        /// 获取实体完整资源路径。
-        /// </summary>
-        public string EntityAssetName
-        {
-            get { return GameAssetPath.GetEntity(_entityRelativePath); }
-        }
-
-        /// <summary>
-        /// 获取主题标签。
-        /// </summary>
-        public string ThemeTag
-        {
-            get { return _themeTag; }
-        }
-
-        /// <summary>
-        /// 获取随机权重。
-        /// </summary>
-        public float Weight
-        {
-            get { return _weight; }
-        }
-
-        /// <summary>
-        /// 获取背景块逻辑高度。
-        /// </summary>
-        public float ChunkLength
-        {
-            get { return _chunkLength; }
-        }
-
-        /// <summary>
-        /// 获取允许跟随的前一主题列表。
-        /// </summary>
-        public string[] CanFollowThemes
-        {
-            get { return _canFollowThemes; }
-        }
-    }
-
-    /// <summary>
-    /// 主题段配置。
-    /// 用于定义某个主题持续的行进距离。
-    /// </summary>
-    [Serializable]
-    private sealed class BgThemeSegment
-    {
-        /// <summary>
-        /// 主题标签。
-        /// </summary>
-        [SerializeField]
-        private string _themeTag;
-
-        /// <summary>
-        /// 该主题段持续距离（世界单位）。
-        /// </summary>
-        [SerializeField]
-        private float _distance = 200f;
-
-        /// <summary>
-        /// 获取主题标签。
-        /// </summary>
-        public string ThemeTag
-        {
-            get { return _themeTag; }
-        }
-
-        /// <summary>
-        /// 获取持续距离。
-        /// </summary>
-        public float Distance
-        {
-            get { return _distance; }
-        }
-    }
 
     /// <summary>
     /// 背景块运行时槽位。
@@ -181,27 +55,13 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     [SerializeField]
     private string _entityGroupName = "Background";
 
-    /// <summary>
-    /// 背景块配置列表。
-    /// 至少需要配置一项有效背景块。
-    /// </summary>
-    [SerializeField]
-    private BgChunkDefinition[] _chunkDefinitions;
-
-    /// <summary>
-    /// 主题段配置列表。
-    /// 为空时表示不启用主题流程，仅按通用规则随机。
-    /// </summary>
     [Header("主题配置")]
-    [SerializeField]
-    private BgThemeSegment[] _themeSegments;
 
     /// <summary>
     /// 是否循环主题段配置。
     /// 启用后，最后一段结束后会回到第一段继续循环。
     /// </summary>
-    [SerializeField]
-    private bool _loopThemeSegments = true;
+    private bool _loopThemeSegments = false;
 
     /// <summary>
     /// 背景滚动速度（世界单位/秒）。
@@ -275,9 +135,25 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     private int _currentThemeSegmentIndex;
 
     /// <summary>
-    /// 当前主题段剩余距离。
+    /// 当前主题段剩余背景块数。
     /// </summary>
-    private float _currentThemeSegmentRemainDistance;
+    private int _currentThemeSegmentRemainChunkCount;
+
+    /// <summary>
+    /// 主题序列是否已耗尽。
+    /// 仅在非循环模式下使用。
+    /// </summary>
+    private bool _isThemeSequenceCompleted;
+
+    /// <summary>
+    /// 是否等待“最后一块到达顶部生成线”后停止滚动。
+    /// </summary>
+    private bool _pendingStopAtTopSpawnLine;
+
+    /// <summary>
+    /// 触发主题序列耗尽的最后一块实体 Id。
+    /// </summary>
+    private int _finalChunkEntityId = -1;
 
     /// <summary>
     /// 上一次生成的背景块定义。
@@ -306,6 +182,12 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     /// 仅当该标记为 true 时，Update 才会驱动背景滚动与补块回收。
     /// </summary>
     private bool _isReady;
+
+    /// <summary>
+    /// 当前关卡 Id。
+    /// 由外部在启动滚动前显式指定。
+    /// </summary>
+    private int _currentLevelId = -1;
 
     /// <summary>
     /// 组件启动入口。
@@ -342,7 +224,12 @@ public sealed class BgScrollComponent : GameFrameworkComponent
         {
             MoveLoadedChunksDown(moveDistance);
             ShiftPlannedSlotsDown(moveDistance);
-            ConsumeThemeDistance(moveDistance);
+        }
+
+        TryStopScrollWhenFinalChunkReachedCameraTop();
+        if (!_isReady)
+        {
+            return;
         }
 
         MaintainSpawnAndRecycle();
@@ -396,6 +283,40 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     /// <returns>启动是否成功。</returns>
     public bool ManualStartScroll(bool prewarmBeforeStart = true)
     {
+        if (_currentLevelId <= 0)
+        {
+            Log.Error("背景滚动启动失败：未设置有效关卡 Id。请调用 ManualStartScroll(levelId, prewarmBeforeStart)。");
+            return false;
+        }
+
+        return ManualStartScroll(_currentLevelId, prewarmBeforeStart);
+    }
+
+    /// <summary>
+    /// 手动启动背景滚动（指定关卡）。
+    /// </summary>
+    /// <param name="levelId">关卡 Id（必须大于 0）。</param>
+    /// <param name="prewarmBeforeStart">是否在启动前执行预热。</param>
+    /// <returns>启动是否成功。</returns>
+    public bool ManualStartScroll(int levelId, bool prewarmBeforeStart = true)
+    {
+        if (levelId <= 0)
+        {
+            Log.Error("背景滚动启动失败：无效关卡 Id，LevelId={0}。", levelId);
+            return false;
+        }
+
+        if (_currentLevelId != levelId)
+        {
+            _currentLevelId = levelId;
+            _isInitialized = false;
+            _isPrewarmed = false;
+            _isReady = false;
+            _isThemeSequenceCompleted = false;
+            _pendingStopAtTopSpawnLine = false;
+            _finalChunkEntityId = -1;
+        }
+
         if (!EnsureInitialized())
         {
             return false;
@@ -440,9 +361,15 @@ public sealed class BgScrollComponent : GameFrameworkComponent
             return false;
         }
 
+        if (!BuildDefinitionsFromDataTable(_currentLevelId))
+        {
+            Log.Error("背景滚动组件初始化失败，背景滚动配置表读取失败。");
+            return false;
+        }
+
         if (!HasValidChunkDefinition())
         {
-            Log.Error("背景滚动组件初始化失败，未配置可用背景块。请检查 Chunk Definitions。");
+            Log.Error("背景滚动组件初始化失败，未配置可用背景块。请检查 BgChunkConfig DataTable。");
             return false;
         }
 
@@ -464,36 +391,6 @@ public sealed class BgScrollComponent : GameFrameworkComponent
         }
 
         return true;
-    }
-
-    /// <summary>
-    /// 检查是否存在有效背景块配置。
-    /// </summary>
-    /// <returns>是否存在有效配置。</returns>
-    private bool HasValidChunkDefinition()
-    {
-        if (_chunkDefinitions == null || _chunkDefinitions.Length == 0)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < _chunkDefinitions.Length; i++)
-        {
-            BgChunkDefinition definition = _chunkDefinitions[i];
-            if (definition == null)
-            {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(definition.EntityRelativePath))
-            {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     /// <summary>
@@ -527,97 +424,14 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     }
 
     /// <summary>
-    /// 初始化主题状态。
-    /// </summary>
-    private void InitThemeState()
-    {
-        _currentThemeSegmentIndex = 0;
-
-        if (_themeSegments == null || _themeSegments.Length == 0)
-        {
-            _currentThemeSegmentRemainDistance = float.MaxValue;
-            return;
-        }
-
-        _currentThemeSegmentRemainDistance = Mathf.Max(0.01f, _themeSegments[0].Distance);
-    }
-
-    /// <summary>
     /// 执行开局预热。
     /// 在启动时一次性铺满视野与缓冲区，避免首帧出现空白。
     /// </summary>
     private void PrewarmBackgroundChunks()
     {
-        float initialBottomY = GetCameraBottomY() - _recycleBehind;
-        float targetTopY = GetCameraTopY() + _spawnAhead;
-        float cameraTopY = GetCameraTopY();
-
+        float initialBottomY = GetCameraBottomY();
         _nextSpawnBottomY = initialBottomY;
-
-        while (_nextSpawnBottomY < targetTopY)
-        {
-            if (!RequestSpawnAt(_nextSpawnBottomY))
-            {
-                break;
-            }
-        }
-
-        // 预热阶段额外保证相机前方至少存在指定数量的背景块。
-        EnsureAheadChunkCount(cameraTopY);
-    }
-
-    /// <summary>
-    /// 推进主题剩余距离。
-    /// 当剩余距离耗尽时，切换到下一主题段。
-    /// </summary>
-    /// <param name="distance">本帧行进距离。</param>
-    private void ConsumeThemeDistance(float distance)
-    {
-        if (distance <= 0f)
-        {
-            return;
-        }
-
-        if (_themeSegments == null || _themeSegments.Length == 0)
-        {
-            return;
-        }
-
-        _currentThemeSegmentRemainDistance -= distance;
-        while (_currentThemeSegmentRemainDistance <= 0f)
-        {
-            float overflowDistance = -_currentThemeSegmentRemainDistance;
-            MoveToNextThemeSegment();
-            _currentThemeSegmentRemainDistance -= overflowDistance;
-        }
-    }
-
-    /// <summary>
-    /// 切换到下一主题段。
-    /// </summary>
-    private void MoveToNextThemeSegment()
-    {
-        if (_themeSegments == null || _themeSegments.Length == 0)
-        {
-            _currentThemeSegmentRemainDistance = float.MaxValue;
-            return;
-        }
-
-        int nextIndex = _currentThemeSegmentIndex + 1;
-        if (nextIndex >= _themeSegments.Length)
-        {
-            if (_loopThemeSegments)
-            {
-                nextIndex = 0;
-            }
-            else
-            {
-                nextIndex = _themeSegments.Length - 1;
-            }
-        }
-
-        _currentThemeSegmentIndex = Mathf.Clamp(nextIndex, 0, _themeSegments.Length - 1);
-        _currentThemeSegmentRemainDistance = Mathf.Max(0.01f, _themeSegments[_currentThemeSegmentIndex].Distance);
+        TryFillChunksByLoadedTopAnchor();
     }
 
     /// <summary>
@@ -659,19 +473,7 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     /// </summary>
     private void MaintainSpawnAndRecycle()
     {
-        float cameraTopY = GetCameraTopY();
-        float spawnLineY = cameraTopY + _spawnAhead;
-
-        // 采用“距离 + 数量”双条件补块：
-        // 1) 传统的顶部缓冲距离；
-        // 2) 相机前方最少背景块数量。
-        while (_nextSpawnBottomY < spawnLineY || GetAheadChunkCount(cameraTopY) < Mathf.Max(0, _minAheadChunkCount))
-        {
-            if (!RequestSpawnAt(_nextSpawnBottomY))
-            {
-                break;
-            }
-        }
+        TryFillChunksByLoadedTopAnchor();
 
         float recycleLineY = GetCameraBottomY() - _recycleBehind;
         while (_activeSlots.Count > 0)
@@ -683,6 +485,24 @@ public sealed class BgScrollComponent : GameFrameworkComponent
             }
 
             RecycleBottomSlot();
+        }
+    }
+
+    /// <summary>
+    /// 基于上一块实体 _topAnchor 世界坐标持续补块。
+    /// </summary>
+    private void TryFillChunksByLoadedTopAnchor()
+    {
+        float cameraTopY = GetCameraTopY();
+        float spawnLineY = cameraTopY + _spawnAhead;
+
+        while (CanSpawnMoreChunksByThemeSequence()
+            && (_nextSpawnBottomY < spawnLineY || GetAheadChunkCount(cameraTopY) < Mathf.Max(0, _minAheadChunkCount)))
+        {
+            if (!RequestSpawnAt(_nextSpawnBottomY))
+            {
+                break;
+            }
         }
     }
 
@@ -712,20 +532,67 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     }
 
     /// <summary>
-    /// 确保相机前方至少存在指定数量的背景块。
-    /// 若当前数量不足，则持续补块直至满足条件或生成失败。
+    /// 检查最后一块是否以“顶边”到达相机可视顶部，满足条件后停止滚动。
     /// </summary>
-    /// <param name="cameraTopY">相机顶部世界坐标 Y。</param>
-    private void EnsureAheadChunkCount(float cameraTopY)
+    private void TryStopScrollWhenFinalChunkReachedCameraTop()
     {
-        int minAheadCount = Mathf.Max(0, _minAheadChunkCount);
-        while (GetAheadChunkCount(cameraTopY) < minAheadCount)
+        if (!_pendingStopAtTopSpawnLine || _finalChunkEntityId <= 0)
         {
-            if (!RequestSpawnAt(_nextSpawnBottomY))
+            return;
+        }
+
+        if (!_slotByEntityId.ContainsKey(_finalChunkEntityId))
+        {
+            return;
+        }
+
+        BgChunkEntity finalChunk;
+        if (!_loadedChunkByEntityId.TryGetValue(_finalChunkEntityId, out finalChunk) || finalChunk == null)
+        {
+            return;
+        }
+
+        float finalChunkTopY = finalChunk.TopY;
+        float cameraTopY = GetCameraTopY();
+        if (finalChunkTopY > cameraTopY)
+        {
+            return;
+        }
+
+        float alignOffsetY = cameraTopY - finalChunkTopY;
+        AlignActiveChunksByOffsetY(alignOffsetY);
+
+        _isReady = false;
+        _pendingStopAtTopSpawnLine = false;
+        _finalChunkEntityId = -1;
+    }
+
+    /// <summary>
+    /// 将当前已激活背景块与逻辑槽位整体沿 Y 轴偏移。
+    /// 用于停滚动前做一次精确贴线，消除帧步进造成的像素级误差。
+    /// </summary>
+    /// <param name="offsetY">Y 轴偏移量。</param>
+    private void AlignActiveChunksByOffsetY(float offsetY)
+    {
+        if (Mathf.Abs(offsetY) <= 0.0001f)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _activeSlots.Count; i++)
+        {
+            ChunkRuntimeSlot slot = _activeSlots[i];
+            slot.PlannedBottomY += offsetY;
+            slot.PlannedTopY += offsetY;
+
+            BgChunkEntity chunk;
+            if (_loadedChunkByEntityId.TryGetValue(slot.EntityId, out chunk) && chunk != null)
             {
-                break;
+                chunk.SnapBottomTo(slot.PlannedBottomY);
             }
         }
+
+        _nextSpawnBottomY += offsetY;
     }
 
     /// <summary>
@@ -735,6 +602,25 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     /// <returns>请求是否成功发起。</returns>
     private bool RequestSpawnAt(float bottomY)
     {
+        if (!CanSpawnMoreChunksByThemeSequence())
+        {
+            return false;
+        }
+
+        if (_activeSlots.Count > 0)
+        {
+            ChunkRuntimeSlot topSlot = _activeSlots[_activeSlots.Count - 1];
+            BgChunkEntity topChunk;
+            if (!_loadedChunkByEntityId.TryGetValue(topSlot.EntityId, out topChunk) || topChunk == null)
+            {
+                // 上一块未显示完成前，不生成下一块，避免重叠。
+                return false;
+            }
+
+            topSlot.PlannedTopY = topChunk.TopY;
+            bottomY = topSlot.PlannedTopY;
+        }
+
         BgChunkDefinition definition = SelectNextChunkDefinition();
         if (definition == null)
         {
@@ -749,19 +635,24 @@ public sealed class BgScrollComponent : GameFrameworkComponent
             return false;
         }
 
-        float chunkLength = Mathf.Max(0.01f, definition.ChunkLength);
-
         ChunkRuntimeSlot slot = new ChunkRuntimeSlot();
         slot.EntityId = entityId;
         slot.PlannedBottomY = bottomY;
-        slot.PlannedTopY = bottomY + chunkLength;
+        slot.PlannedTopY = bottomY;
         slot.Definition = definition;
 
         _activeSlots.Add(slot);
         _slotByEntityId[entityId] = slot;
-        _nextSpawnBottomY = slot.PlannedTopY;
+        _nextSpawnBottomY = bottomY;
 
+        bool wasThemeSequenceCompleted = _isThemeSequenceCompleted;
         UpdateRepeatState(definition);
+        ConsumeThemeChunkCount(1);
+        if (!wasThemeSequenceCompleted && _isThemeSequenceCompleted && !_loopThemeSegments)
+        {
+            _finalChunkEntityId = entityId;
+            _pendingStopAtTopSpawnLine = true;
+        }
 
         GameEntry.Entity.ShowEntity<BgChunkEntity>(entityId, definition.EntityAssetName, _entityGroupName);
         return true;
@@ -800,7 +691,7 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     {
         if (_activeSlots.Count == 0)
         {
-            _nextSpawnBottomY = GetCameraBottomY() - _recycleBehind;
+            _nextSpawnBottomY = GetCameraBottomY();
             return;
         }
 
@@ -1020,21 +911,6 @@ public sealed class BgScrollComponent : GameFrameworkComponent
     }
 
     /// <summary>
-    /// 获取当前主题标签。
-    /// </summary>
-    /// <returns>当前主题标签，若无主题配置则返回空字符串。</returns>
-    private string GetCurrentThemeTag()
-    {
-        if (_themeSegments == null || _themeSegments.Length == 0)
-        {
-            return string.Empty;
-        }
-
-        int index = Mathf.Clamp(_currentThemeSegmentIndex, 0, _themeSegments.Length - 1);
-        return _themeSegments[index] != null ? _themeSegments[index].ThemeTag : string.Empty;
-    }
-
-    /// <summary>
     /// 处理实体显示成功事件。
     /// 成功后将实体与逻辑槽位绑定，并执行位置对齐。
     /// </summary>
@@ -1069,14 +945,9 @@ public sealed class BgScrollComponent : GameFrameworkComponent
 
         _loadedChunkByEntityId[entityId] = chunk;
         chunk.SnapBottomTo(slot.PlannedBottomY);
-
-        float configuredLength = Mathf.Max(0.01f, slot.PlannedTopY - slot.PlannedBottomY);
-        float actualLength = chunk.Length;
-        if (Mathf.Abs(configuredLength - actualLength) > 0.05f)
-        {
-            Log.Warning("背景块长度与配置存在偏差，EntityId={0}，ConfigLength={1}，ActualLength={2}。",
-                entityId, configuredLength, actualLength);
-        }
+        slot.PlannedTopY = chunk.TopY;
+        RefreshNextSpawnBottomFromSlots();
+        TryFillChunksByLoadedTopAnchor();
 
         if (_hideAfterShowEntityIds.Remove(entityId))
         {
@@ -1103,6 +974,13 @@ public sealed class BgScrollComponent : GameFrameworkComponent
         }
 
         int entityId = ne.EntityId;
+        if (_pendingStopAtTopSpawnLine && entityId == _finalChunkEntityId)
+        {
+            _isReady = false;
+            _pendingStopAtTopSpawnLine = false;
+            _finalChunkEntityId = -1;
+            Log.Warning("背景滚动最终块显示失败，已提前停止滚动，EntityId={0}。", entityId);
+        }
 
         RemoveSlotByEntityId(entityId);
         _loadedChunkByEntityId.Remove(entityId);

@@ -1,23 +1,25 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 
 /// <summary>
-/// ����UI
+/// 加载界面。
 /// </summary>
 public class LoadUIForm : UIFormLogic
 {
-    /// <summary>
-    /// ���ذ�ť
-    /// </summary>
-    [SerializeField]private Button _ButtonLoad;
+    [SerializeField]
+    private Button _ButtonLoad;
+
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
         _ButtonLoad.onClick.AddListener(OnButtonLoadClick);
+    }
+
+    protected override void OnOpen(object userData)
+    {
+        base.OnOpen(userData);
+        SetLoadButtonVisible(false);
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -30,5 +32,20 @@ public class LoadUIForm : UIFormLogic
     {
         GameFramework.Procedure.ProcedureBase currentProcedure = GameEntry.Procedure.CurrentProcedure;
         currentProcedure.ChangeState<MainProcedure>(currentProcedure.procedureOwner);
+    }
+
+    /// <summary>
+    /// 设置加载按钮显隐。
+    /// </summary>
+    /// <param name="visible">是否显示按钮。</param>
+    public void SetLoadButtonVisible(bool visible)
+    {
+        if (_ButtonLoad == null)
+        {
+            Log.Warning("LoadUI 按钮显隐设置失败：_ButtonLoad 未绑定。");
+            return;
+        }
+
+        _ButtonLoad.gameObject.SetActive(visible);
     }
 }

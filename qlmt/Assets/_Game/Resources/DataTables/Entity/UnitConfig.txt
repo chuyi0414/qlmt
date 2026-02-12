@@ -1,0 +1,3 @@
+# Id	Health	Attack	Speed
+# 单位配置：Id>0；Health>0；Attack>=0；Speed>=0
+1	100	10	5

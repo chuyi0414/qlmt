@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ս������
+/// 战斗流程
 /// </summary>
 public class CombatProcedure : ProcedureBase
 {
+    private const int CurrentLevelId = 1;
     private int _combatUIId;
     protected override void OnInit(IFsm<IProcedureManager> procedureOwner)
     {
@@ -19,8 +20,14 @@ public class CombatProcedure : ProcedureBase
     protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
     {
         base.OnEnter(procedureOwner);
+        GameEntry.Entity.ShowEntity<CharacterEntity>(
+            GameEntry.EntityIdPool.Acquire(), 
+            GameAssetPath.GetEntity("Unit/Character/CharacterEntity"),
+            "Character",
+            userData : 1);
         _combatUIId = GameEntry.UI.OpenUIForm(GameAssetPath.GetUI("Combat/CombatUI"), "Main");
-        GameEntry.BgScroll.ManualStartScroll(true);
+        GameEntry.BgScroll.ManualStartScroll(CurrentLevelId, true);
+
     }
 
     protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)

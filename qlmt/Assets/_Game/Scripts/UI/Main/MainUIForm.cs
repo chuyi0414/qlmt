@@ -10,7 +10,7 @@ using UnityGameFramework.Runtime;
 public class MainUIForm : UIFormLogic
 {
     /// <summary>
-    /// ¿ªÊ¼ÓÎÏ·
+    /// å¼€å§‹æ¸¸æˆ
     /// </summary>
     [SerializeField]private Button _buttonStartGame;
     protected override void OnInit(object userData)

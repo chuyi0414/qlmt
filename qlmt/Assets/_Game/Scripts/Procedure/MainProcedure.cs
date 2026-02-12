@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// MainÁ÷³Ì
+/// Mainæµç¨‹
 /// </summary>
 public class MainProcedure : ProcedureBase
 {

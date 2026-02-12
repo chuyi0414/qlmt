@@ -1,0 +1,3 @@
+# Id	ThemeGroupIds	LoopThemeSegments
+# Id 即 LevelId；ThemeGroupIds 使用 | 分隔并按顺序执行；LoopThemeSegments 仅支持 0/1
+1	1	0
