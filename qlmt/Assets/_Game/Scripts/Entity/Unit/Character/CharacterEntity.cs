@@ -5,7 +5,7 @@ using UnityGameFramework.Runtime;
 /// 角色实体逻辑。
 /// 通过 ShowEntity 传入的 userData（严格 int）确定 UnitId，并据此加载角色基础属性。
 /// </summary>
-public class CharacterEntity : UnitBaseEntity
+public class CharacterBaseEntity : UnitBaseEntity
 {
     /// <summary>
     /// Unit 配置表名称。

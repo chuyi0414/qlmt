@@ -30,21 +30,19 @@ public sealed class DRBgThemeSegmentConfig : DataRowBase
         public int ChunkCount { get; set; }
     }
 
-    /// <summary>
-    /// 主题组 Id（同时作为数据行主键）。
+        /// <summary>
+    /// 主键 Id 的内部存储，对应数据表的 Id 列。
     /// </summary>
-    public int ConfigId { get; set; }
+    private int m_Id;
+    /// <summary>
+    /// 数据行唯一 Id。
+    /// </summary>
+    public override int Id => m_Id;
 
     /// <summary>
     /// 主题片段序列（按配置顺序执行）。
     /// </summary>
     public ThemeChunkSegment[] Segments { get; set; }
-
-    public override int Id
-    {
-        get { return ConfigId; }
-    }
-
     public override bool ParseDataRow(string dataRowString, object userData)
     {
         if (string.IsNullOrWhiteSpace(dataRowString))
@@ -81,7 +79,7 @@ public sealed class DRBgThemeSegmentConfig : DataRowBase
             return false;
         }
 
-        ConfigId = id;
+        m_Id = id;
         Segments = segments;
         return true;
     }

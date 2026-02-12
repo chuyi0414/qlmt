@@ -212,7 +212,7 @@ public sealed partial class BgScrollComponent : GameFrameworkComponent
     /// 帧更新。
     /// 负责驱动背景下移、推进主题段并维护补块/回收。
     /// </summary>
-    private void Update()
+    public void Tick()
     {
         if (!_isReady)
         {

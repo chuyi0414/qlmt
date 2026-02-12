@@ -14,10 +14,14 @@ public sealed class DRBgLevelThemeConfig : DataRowBase
     /// </summary>
     private const int ColumnCount = 3;
 
-    /// <summary>
-    /// 关卡 Id（同时作为数据行主键）。
+        /// <summary>
+    /// 主键 Id 的内部存储，对应数据表的 Id 列。
     /// </summary>
-    public int ConfigId { get; set; }
+    private int m_Id;
+    /// <summary>
+    /// 数据行唯一 Id。
+    /// </summary>
+    public override int Id => m_Id;
 
     /// <summary>
     /// 关卡主题组序列，按配置顺序执行。
@@ -28,11 +32,6 @@ public sealed class DRBgLevelThemeConfig : DataRowBase
     /// 是否循环主题段。
     /// </summary>
     public bool LoopThemeSegments { get; set; }
-
-    public override int Id
-    {
-        get { return ConfigId; }
-    }
 
     public override bool ParseDataRow(string dataRowString, object userData)
     {
@@ -82,7 +81,7 @@ public sealed class DRBgLevelThemeConfig : DataRowBase
             return false;
         }
 
-        ConfigId = id;
+        m_Id = id;
         ThemeGroupIds = themeGroupIds;
         LoopThemeSegments = loopThemeSegmentsRaw == 1;
         return true;

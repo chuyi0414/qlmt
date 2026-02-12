@@ -13,10 +13,14 @@ public sealed class DRBgChunkConfig : DataRowBase
     /// </summary>
     private const int ColumnCount = 5;
 
-    /// <summary>
-    /// 数据行主键。
+        /// <summary>
+    /// 主键 Id 的内部存储，对应数据表的 Id 列。
     /// </summary>
-    public int ConfigId { get; set; }
+    private  int m_Id;
+    /// <summary>
+    /// 数据行唯一 Id。
+    /// </summary>
+    public override int Id => m_Id;
 
     /// <summary>
     /// 背景块实体相对路径（相对 EntityRoot）。
@@ -37,11 +41,6 @@ public sealed class DRBgChunkConfig : DataRowBase
     /// 可跟随主题原始配置串（| 分隔）。
     /// </summary>
     public string CanFollowThemes { get; set; }
-
-    public override int Id
-    {
-        get { return ConfigId; }
-    }
 
     public override bool ParseDataRow(string dataRowString, object userData)
     {
@@ -85,7 +84,7 @@ public sealed class DRBgChunkConfig : DataRowBase
             return false;
         }
 
-        ConfigId = id;
+        m_Id = id;
         EntityRelativePath = entityRelativePath;
         ThemeTag = columns[2].Trim();
         Weight = weight;

@@ -14,9 +14,13 @@ public sealed class DRUnitConfig : DataRowBase
     private const int ColumnCount = 4;
 
     /// <summary>
-    /// 单位配置 Id。
+    /// 主键 Id 的内部存储，对应数据表的 Id 列。
     /// </summary>
-    public int ConfigId { get; set; }
+    private int m_Id;
+    /// <summary>
+    /// 数据行唯一 Id。
+    /// </summary>
+    public override int Id => m_Id;
 
     /// <summary>
     /// 单位血量。
@@ -32,11 +36,6 @@ public sealed class DRUnitConfig : DataRowBase
     /// 单位速度。
     /// </summary>
     public float Speed { get; set; }
-
-    public override int Id
-    {
-        get { return ConfigId; }
-    }
 
     public override bool ParseDataRow(string dataRowString, object userData)
     {
@@ -65,7 +64,7 @@ public sealed class DRUnitConfig : DataRowBase
             return false;
         }
 
-        ConfigId = id;
+        m_Id = id;
         Health = health;
         Attack = attack;
         Speed = speed;

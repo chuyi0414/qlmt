@@ -20,7 +20,7 @@ public class CombatProcedure : ProcedureBase
     protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
     {
         base.OnEnter(procedureOwner);
-        GameEntry.Entity.ShowEntity<CharacterEntity>(
+        GameEntry.Entity.ShowEntity<CharacterBaseEntity>(
             GameEntry.EntityIdPool.Acquire(), 
             GameAssetPath.GetEntity("Unit/Character/CharacterEntity"),
             "Character",
@@ -33,8 +33,7 @@ public class CombatProcedure : ProcedureBase
     protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
     {
         base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
-
-
+        GameEntry.BgScroll.Tick();
     }
 
     protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)

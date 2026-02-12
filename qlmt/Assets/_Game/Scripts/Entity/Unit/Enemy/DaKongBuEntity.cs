@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DaKongBu : UnitBaseEntity
+public class DaKongBu : EnemyBaseEntity
 {
     
 }
