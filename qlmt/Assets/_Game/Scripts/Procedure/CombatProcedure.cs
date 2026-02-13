@@ -1,8 +1,11 @@
+using GameFramework;
 using GameFramework.Fsm;
 using GameFramework.Procedure;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityGameFramework.Runtime;
 
 /// <summary>
 /// 战斗流程
@@ -20,25 +23,27 @@ public class CombatProcedure : ProcedureBase
     protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
     {
         base.OnEnter(procedureOwner);
-        GameEntry.Entity.ShowEntity<CharacterBaseEntity>(
-            GameEntry.EntityIdPool.Acquire(), 
-            GameAssetPath.GetEntity("Unit/Character/CharacterEntity"),
-            "Character",
-            userData : 1);
         _combatUIId = GameEntry.UI.OpenUIForm(GameAssetPath.GetUI("Combat/CombatUI"), "Main");
-        GameEntry.BgScroll.ManualStartScroll(CurrentLevelId, true);
-
+        StartLevel(CurrentLevelId);
     }
 
     protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
     {
         base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
-        GameEntry.BgScroll.Tick();
+        
     }
 
     protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)
     {
         base.OnLeave(procedureOwner, isShutdown);
         GameEntry.UI.CloseUIForm(_combatUIId);
+    }
+
+    /// <summary>
+    /// 启动关卡
+    /// </summary>
+    private void StartLevel(int level)
+    {
+        
     }
 }

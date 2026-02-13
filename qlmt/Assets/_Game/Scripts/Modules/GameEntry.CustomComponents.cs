@@ -12,18 +12,12 @@ public partial class GameEntry
     public static EntityIdPoolComponent EntityIdPool { get; private set; }
 
     /// <summary>
-    /// 背景滚动组件。
-    /// 用于驱动纵向背景移动、补块与回收。
-    /// </summary>
-    public static BgScrollComponent BgScroll { get; private set; }
-
-    /// <summary>
     /// 初始化自定义组件。
     /// 与框架组件保持统一获取方式，方便全局访问。
     /// </summary>
     private static void InitCustomComponents()
     {
         EntityIdPool = GFGameEntry.GetComponent<EntityIdPoolComponent>();
-        BgScroll = GFGameEntry.GetComponent<BgScrollComponent>();
+        
     }
 }

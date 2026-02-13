@@ -1,3 +1,0 @@
-# Id	ThemeSegments
-# Id 即 ThemeGroupId；ThemeSegments 格式为 ThemeTag|ChunkCount，片段可用 , 或 ， 分隔
-1	Default|5
