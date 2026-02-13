@@ -36,3 +36,7 @@ ServerData/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local tool outputs
+qlmt/TextToolDatas/log/
+qlmt/TextToolDatas/slim/backup.txt
