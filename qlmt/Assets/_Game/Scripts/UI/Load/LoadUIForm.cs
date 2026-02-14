@@ -19,7 +19,6 @@ public class LoadUIForm : UIFormLogic
     protected override void OnOpen(object userData)
     {
         base.OnOpen(userData);
-        SetLoadButtonVisible(false);
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -40,12 +39,6 @@ public class LoadUIForm : UIFormLogic
     /// <param name="visible">是否显示按钮。</param>
     public void SetLoadButtonVisible(bool visible)
     {
-        if (_ButtonLoad == null)
-        {
-            Log.Warning("LoadUI 按钮显隐设置失败：_ButtonLoad 未绑定。");
-            return;
-        }
-
         _ButtonLoad.gameObject.SetActive(visible);
     }
 }

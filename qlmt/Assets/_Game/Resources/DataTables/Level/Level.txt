@@ -1,0 +1,2 @@
+# id	themeId	isLoopTheme
+1	1	0

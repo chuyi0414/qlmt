@@ -1,0 +1,3 @@
+# id	name	entityPath
+1	CityBlockA	Bg/BgEntity1
+2	CityBlockB	Bg/BgEntity1

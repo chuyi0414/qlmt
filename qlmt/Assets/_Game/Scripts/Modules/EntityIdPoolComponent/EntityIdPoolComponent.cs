@@ -1,4 +1,4 @@
-﻿using GameFramework.Event;
+using GameFramework.Event;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,14 +64,8 @@ public sealed class EntityIdPoolComponent : GameFrameworkComponent
     /// </summary>
     private void Start()
     {
-        _eventComponent = GameEntry.Event;
-        if (_eventComponent == null)
-        {
-            Log.Error("实体 Id 池组件未找到 EventComponent。");
-            return;
-        }
 
-        _eventComponent.Subscribe(HideEntityCompleteEventArgs.EventId, OnHideEntityComplete);
+        GameEntry.Event.Subscribe(HideEntityCompleteEventArgs.EventId, OnHideEntityComplete);
         _isSubscribed = true;
     }
 

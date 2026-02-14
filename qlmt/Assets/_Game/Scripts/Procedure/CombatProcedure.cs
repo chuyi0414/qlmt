@@ -24,26 +24,20 @@ public class CombatProcedure : ProcedureBase
     {
         base.OnEnter(procedureOwner);
         _combatUIId = GameEntry.UI.OpenUIForm(GameAssetPath.GetUI("Combat/CombatUI"), "Main");
-        StartLevel(CurrentLevelId);
+        GameEntry.CombatManager.StartLevel(CurrentLevelId);
     }
 
     protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
     {
         base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
-        
+        GameEntry.CombatManager.UpdateBackgroundScroll(elapseSeconds);
     }
 
     protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)
     {
         base.OnLeave(procedureOwner, isShutdown);
+        GameEntry.CombatManager.ClearBackgroundRuntime();
         GameEntry.UI.CloseUIForm(_combatUIId);
     }
 
-    /// <summary>
-    /// 启动关卡
-    /// </summary>
-    private void StartLevel(int level)
-    {
-        
-    }
 }

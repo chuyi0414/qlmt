@@ -1,0 +1,5 @@
+# id	name	campType	hp	attack	moveSpeed	entityPath
+1	Player_Default	0	120.0	15.0	3.5	Unit/Character/CharacterEntity
+2	Partner_Default	1	100.0	12.0	3.2	Unit/Character/CharacterEntity
+3	Enemy_Default	2	90.0	10.0	3.0	Unit/Character/CharacterEntity
+4	Neutral_Default	3	80.0	8.0	2.8	Unit/Character/CharacterEntity

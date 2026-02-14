@@ -9,11 +9,21 @@ using UnityGameFramework.Runtime;
 /// </summary>
 public class LoadProcedure : ProcedureBase
 {
-
+    private int _loadUIId;
     protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
     {
         base.OnEnter(procedureOwner); 
+        _loadUIId = GameEntry.UI.OpenUIForm(GameAssetPath.GetUI("Load/LoadUI"),"Main");
+        if (GameEntry.DataTableManager == null)
+        {
+            Log.Error("加载全部数据表失败，DataTableManagerComponent 未挂载。");
+            return;
+        }
 
+        if (!GameEntry.DataTableManager.LoadAllDataTables())
+        {
+            Log.Error("加载全部数据表失败。");
+        }
     }
 
     protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
@@ -25,7 +35,7 @@ public class LoadProcedure : ProcedureBase
     protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)
     {
         base.OnLeave(procedureOwner, isShutdown);
-
+        GameEntry.UI.CloseUIForm(_loadUIId);
     }
 
 }
