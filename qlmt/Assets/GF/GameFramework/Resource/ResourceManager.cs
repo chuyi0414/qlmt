@@ -47,12 +47,6 @@ namespace GameFramework.Resource
         private ResourceUpdater m_ResourceUpdater;
         private ResourceLoader m_ResourceLoader;
         private IResourceHelper m_ResourceHelper;
-#if GF_USE_RESOURCES_BACKEND
-        /// <summary>
-        /// 是否启用 Resources 后端资源加载。
-        /// </summary>
-        private bool m_UseResourcesBackend;
-#endif
 
         private string m_ReadOnlyPath;
         private string m_ReadWritePath;
@@ -108,9 +102,6 @@ namespace GameFramework.Resource
             m_ResourceLoader = new ResourceLoader(this);
 
             m_ResourceHelper = null;
-#if GF_USE_RESOURCES_BACKEND
-            m_UseResourcesBackend = false;
-#endif
             m_ReadOnlyPath = null;
             m_ReadWritePath = null;
             m_ResourceMode = ResourceMode.Unspecified;
@@ -589,23 +580,6 @@ namespace GameFramework.Resource
             }
         }
 
-#if GF_USE_RESOURCES_BACKEND
-        /// <summary>
-        /// 获取或设置是否启用 Resources 后端资源加载。
-        /// </summary>
-        public bool UseResourcesBackend
-        {
-            get
-            {
-                return m_UseResourcesBackend;
-            }
-            set
-            {
-                m_UseResourcesBackend = value;
-            }
-        }
-#endif
-
         /// <summary>
         /// 资源校验开始事件。
         /// </summary>
@@ -978,6 +952,10 @@ namespace GameFramework.Resource
                     m_ResourceUpdater.ResourceUpdateComplete += OnUpdaterResourceUpdateComplete;
                     m_ResourceUpdater.ResourceUpdateAllComplete += OnUpdaterResourceUpdateAllComplete;
                 }
+                else if (m_ResourceMode == ResourceMode.Resource)
+                {
+                    // 备注：Resources 模式不依赖版本列表、校验与更新流程。
+                }
             }
             else if (m_ResourceMode != resourceMode)
             {
@@ -1121,6 +1099,13 @@ namespace GameFramework.Resource
             if (m_ResourceMode == ResourceMode.Unspecified)
             {
                 throw new GameFrameworkException("You must set resource mode first.");
+            }
+
+            if (m_ResourceMode == ResourceMode.Resource)
+            {
+                m_RefuseSetFlag = true;
+                initResourcesCompleteCallback();
+                return;
             }
 
             if (m_ResourceMode != ResourceMode.Package)

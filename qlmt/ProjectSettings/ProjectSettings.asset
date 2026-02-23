@@ -611,7 +611,7 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Android: ENABLE_LOG
-    Standalone: GF_USE_RESOURCES_BACKEND;ENABLE_LOG
+    Standalone: ENABLE_LOG
     WebGL: ENABLE_LOG
     Windows Store Apps: ENABLE_LOG
     iPhone: ENABLE_LOG

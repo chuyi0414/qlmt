@@ -5,8 +5,6 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-#if GF_USE_RESOURCES_BACKEND
-
 using GameFramework;
 using GameFramework.FileSystem;
 using GameFramework.Resource;
@@ -434,5 +432,3 @@ namespace UnityGameFramework.Runtime
         }
     }
 }
-
-#endif

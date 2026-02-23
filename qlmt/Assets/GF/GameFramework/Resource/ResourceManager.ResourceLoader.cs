@@ -21,7 +21,6 @@ namespace GameFramework.Resource
         private sealed partial class ResourceLoader
         {
             private const int CachedHashBytesLength = 4;
-#if GF_USE_RESOURCES_BACKEND
             /// <summary>
             /// Resources 后端使用的资源扩展名占位符。
             /// </summary>
@@ -31,7 +30,6 @@ namespace GameFramework.Resource
             /// Resources 后端依赖资源名称的空数组占位，避免出现空引用。
             /// </summary>
             private static readonly string[] ResourcesBackendEmptyDependencyAssetNames = new string[0];
-#endif
 
             private readonly ResourceManager m_ResourceManager;
             private readonly TaskPool<LoadResourceTaskBase> m_TaskPool;
@@ -285,13 +283,11 @@ namespace GameFramework.Resource
             /// <returns>检查资源是否存在的结果。</returns>
             public HasAssetResult HasAsset(string assetName)
             {
-#if GF_USE_RESOURCES_BACKEND
-                if (m_ResourceManager.UseResourcesBackend)
+                if (m_ResourceManager.m_ResourceMode == ResourceMode.Resource)
                 {
                     // 备注：Resources 后端不依赖资源表，存在性以实际加载结果为准。
                     return string.IsNullOrEmpty(assetName) ? HasAssetResult.NotExist : HasAssetResult.AssetOnDisk;
                 }
-#endif
                 ResourceInfo resourceInfo = GetResourceInfo(assetName);
                 if (resourceInfo == null)
                 {
@@ -884,15 +880,13 @@ namespace GameFramework.Resource
                     return false;
                 }
 
-#if GF_USE_RESOURCES_BACKEND
-                if (m_ResourceManager.UseResourcesBackend)
+                if (m_ResourceManager.m_ResourceMode == ResourceMode.Resource)
                 {
                     // 备注：Resources 后端跳过资源表校验，依赖列表留空。
                     resourceInfo = CreateResourcesBackendResourceInfo(assetName);
                     dependencyAssetNames = ResourcesBackendEmptyDependencyAssetNames;
                     return true;
                 }
-#endif
 
                 AssetInfo assetInfo = m_ResourceManager.GetAssetInfo(assetName);
                 if (assetInfo == null)
@@ -910,7 +904,6 @@ namespace GameFramework.Resource
                 return m_ResourceManager.m_ResourceMode == ResourceMode.UpdatableWhilePlaying ? true : resourceInfo.Ready;
             }
 
-#if GF_USE_RESOURCES_BACKEND
             /// <summary>
             /// 创建 Resources 后端的资源信息占位。
             /// </summary>
@@ -921,7 +914,6 @@ namespace GameFramework.Resource
                 ResourceName resourceName = new ResourceName(assetName, null, ResourcesBackendExtension);
                 return new ResourceInfo(resourceName, null, LoadType.LoadFromFile, 0, 0, 0, true, true);
             }
-#endif
 
             private void DefaultDecryptResourceCallback(byte[] bytes, int startIndex, int count, string name, string variant, string extension, bool storageInReadOnly, string fileSystem, byte loadType, int length, int hashCode)
             {

@@ -20,6 +20,10 @@ public sealed class DataTableManagerComponent : GameFrameworkComponent
     /// </summary>
     private const string LevelDataTableRelativePath = "Level/Level";
     /// <summary>
+    /// 背景道路生成配置数据表相对路径。
+    /// </summary>
+    private const string BgRoadGenProfileDataTableRelativePath = "BgScroll/BgRoadGenProfile";
+    /// <summary>
     /// 角色数据表相对路径。
     /// </summary>
     private const string CharacterDataTableRelativePath = "Entity/Character";
@@ -44,7 +48,16 @@ public sealed class DataTableManagerComponent : GameFrameworkComponent
     {
         return GameEntry.DataTable.HasDataTable<DRBgBlock>() &&
                GameEntry.DataTable.HasDataTable<DRBgTheme>() &&
-               GameEntry.DataTable.HasDataTable<DRLevel>();
+               GameEntry.DataTable.HasDataTable<DRLevel>() &&
+               GameEntry.DataTable.HasDataTable<DRBgRoadGenProfile>();
+    }
+
+    /// <summary>
+    /// 检查背景道路生成配置数据表是否已创建。
+    /// </summary>
+    public bool HasBgRoadGenProfileDataTable()
+    {
+        return GameEntry.DataTable.HasDataTable<DRBgRoadGenProfile>();
     }
 
     /// <summary>
@@ -57,14 +70,15 @@ public sealed class DataTableManagerComponent : GameFrameworkComponent
     }
 
     /// <summary>
-    /// 加载战斗背景系统所需的三张数据表。
+    /// 加载战斗背景系统所需的数据表。
     /// </summary>
     /// <returns>全部加载成功返回 true。</returns>
     public bool LoadCombatBackgroundDataTables()
     {
         return LoadDataTable<DRBgBlock>(BgBlockDataTableRelativePath) &&
                LoadDataTable<DRBgTheme>(BgThemeDataTableRelativePath) &&
-               LoadDataTable<DRLevel>(LevelDataTableRelativePath);
+               LoadDataTable<DRLevel>(LevelDataTableRelativePath) &&
+               LoadDataTable<DRBgRoadGenProfile>(BgRoadGenProfileDataTableRelativePath);
     }
 
     /// <summary>

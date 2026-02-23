@@ -1,0 +1,3 @@
+# id	seed	perlinFrequency	roadHalfWidth	spawnEdgePaddingX	noneWeight	smallWeight	bigWeight	minSpawnGapY	maxSpawnGapY	maxPointsPerBg	minInBlockPointDistance	roadCenterOffsetX	smallMarkerPath	bigMarkerPath
+# id：配置Id	seed：固定随机种子	perlinFrequency：Perlin频率	roadHalfWidth：道路半宽	spawnEdgePaddingX：视野边缘留白	noneWeight：不生成权重	smallWeight：小物资点权重	bigWeight：大物资点权重	minSpawnGapY：最小纵向间距	maxSpawnGapY：最大纵向间距	maxPointsPerBg：每背景块最大点位数	minInBlockPointDistance：同块最小点间距	roadCenterOffsetX：道路中心X偏移	smallMarkerPath：小物资点占位路径	bigMarkerPath：大物资点占位路径
+1001	20040414	0.30	2.4	0.3	0.55	0.35	0.10	1.2	2.8	2	1.4	0	Combat/ResourcePoint/ResourcePointSmallPlaceholder	Combat/ResourcePoint/ResourcePointBigPlaceholder

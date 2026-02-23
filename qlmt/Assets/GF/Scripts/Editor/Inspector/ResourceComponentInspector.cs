@@ -19,7 +19,7 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(ResourceComponent))]
     internal sealed class ResourceComponentInspector : GameFrameworkInspector
     {
-        private static readonly string[] ResourceModeNames = new string[] { "Package", "Updatable", "Updatable While Playing" };
+        private static readonly string[] ResourceModeNames = new string[] { "Package", "Updatable", "Updatable While Playing", "Resource" };
 
         private SerializedProperty m_ResourceMode = null;
         private SerializedProperty m_ReadWritePathType = null;
@@ -33,12 +33,6 @@ namespace UnityGameFramework.Editor
         private SerializedProperty m_ResourceCapacity = null;
         private SerializedProperty m_ResourceExpireTime = null;
         private SerializedProperty m_ResourcePriority = null;
-#if GF_USE_RESOURCES_BACKEND
-        /// <summary>
-        /// Resources 后端开关的序列化字段。
-        /// </summary>
-        private SerializedProperty m_UseResourcesBackend = null;
-#endif
         private SerializedProperty m_UpdatePrefixUri = null;
         private SerializedProperty m_GenerateReadWriteVersionListLength = null;
         private SerializedProperty m_UpdateRetryCount = null;
@@ -85,14 +79,6 @@ namespace UnityGameFramework.Editor
                 m_ReadWritePathType.enumValueIndex = (int)(ReadWritePathType)EditorGUILayout.EnumPopup("Read-Write Path Type", t.ReadWritePathType);
             }
             EditorGUI.EndDisabledGroup();
-
-#if GF_USE_RESOURCES_BACKEND
-            EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
-            {
-                EditorGUILayout.PropertyField(m_UseResourcesBackend, new GUIContent("Use Resources Backend"));
-            }
-            EditorGUI.EndDisabledGroup();
-#endif
 
             float minUnloadUnusedAssetsInterval = EditorGUILayout.Slider("Min Unload Unused Assets Interval", m_MinUnloadUnusedAssetsInterval.floatValue, 0f, 3600f);
             if (minUnloadUnusedAssetsInterval != m_MinUnloadUnusedAssetsInterval.floatValue)
@@ -226,7 +212,7 @@ namespace UnityGameFramework.Editor
                     }
                 }
 
-                if (m_ResourceModeIndex > 0)
+                if (IsUpdatableModeSelected())
                 {
                     string updatePrefixUri = EditorGUILayout.DelayedTextField("Update Prefix Uri", m_UpdatePrefixUri.stringValue);
                     if (updatePrefixUri != m_UpdatePrefixUri.stringValue)
@@ -291,7 +277,7 @@ namespace UnityGameFramework.Editor
                 EditorGUILayout.LabelField("Asset Count", isEditorResourceMode ? "N/A" : t.AssetCount.ToString());
                 EditorGUILayout.LabelField("Resource Count", isEditorResourceMode ? "N/A" : t.ResourceCount.ToString());
                 EditorGUILayout.LabelField("Resource Group Count", isEditorResourceMode ? "N/A" : t.ResourceGroupCount.ToString());
-                if (m_ResourceModeIndex > 0)
+                if (IsUpdatableModeSelected())
                 {
                     EditorGUILayout.LabelField("Applying Resource Pack Path", isEditorResourceMode ? "N/A" : t.ApplyingResourcePackPath ?? "<Unknwon>");
                     EditorGUILayout.LabelField("Apply Waiting Count", isEditorResourceMode ? "N/A" : t.ApplyWaitingCount.ToString());
@@ -376,9 +362,6 @@ namespace UnityGameFramework.Editor
             m_ResourceCapacity = serializedObject.FindProperty("m_ResourceCapacity");
             m_ResourceExpireTime = serializedObject.FindProperty("m_ResourceExpireTime");
             m_ResourcePriority = serializedObject.FindProperty("m_ResourcePriority");
-#if GF_USE_RESOURCES_BACKEND
-            m_UseResourcesBackend = serializedObject.FindProperty("m_UseResourcesBackend");
-#endif
             m_UpdatePrefixUri = serializedObject.FindProperty("m_UpdatePrefixUri");
             m_GenerateReadWriteVersionListLength = serializedObject.FindProperty("m_GenerateReadWriteVersionListLength");
             m_UpdateRetryCount = serializedObject.FindProperty("m_UpdateRetryCount");
@@ -402,6 +385,12 @@ namespace UnityGameFramework.Editor
         private void RefreshModes()
         {
             m_ResourceModeIndex = m_ResourceMode.enumValueIndex > 0 ? m_ResourceMode.enumValueIndex - 1 : 0;
+        }
+
+        private bool IsUpdatableModeSelected()
+        {
+            GameFramework.Resource.ResourceMode resourceMode = (GameFramework.Resource.ResourceMode)m_ResourceMode.enumValueIndex;
+            return resourceMode == GameFramework.Resource.ResourceMode.Updatable || resourceMode == GameFramework.Resource.ResourceMode.UpdatableWhilePlaying;
         }
 
         private void RefreshTypeNames()

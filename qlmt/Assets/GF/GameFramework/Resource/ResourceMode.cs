@@ -30,6 +30,11 @@ namespace GameFramework.Resource
         /// <summary>
         /// 使用时下载的可更新模式。
         /// </summary>
-        UpdatableWhilePlaying
+        UpdatableWhilePlaying,
+
+        /// <summary>
+        /// Resources 加载模式。
+        /// </summary>
+        Resource = 4
     }
 }
