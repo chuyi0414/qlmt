@@ -1,3 +1,3 @@
-# id	themeId	isLoopTheme	useNoiseSidePoints	bgRoadGenProfileId
-# id：关卡Id	themeId：关卡主题Id	isLoopTheme：是否循环主题（0否1是）	useNoiseSidePoints：是否启用噪点侧边物资（0否1是）	bgRoadGenProfileId：道路生成配置Id
-1	1	0	1	1001
+# id	themeId	isLoopTheme
+# id：关卡Id	themeId：关卡主题Id	isLoopTheme：是否循环主题（0否1是）
+1	1	0

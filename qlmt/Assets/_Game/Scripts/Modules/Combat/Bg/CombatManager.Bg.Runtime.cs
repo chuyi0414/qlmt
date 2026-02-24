@@ -69,7 +69,6 @@ public partial class CombatManager
                 return entity;
             }
 
-            OnBackgroundWillRecycleForProcGen(_activeBackgrounds[i].EntityId, null);
             _activeBackgrounds.RemoveAt(i);
         }
 
@@ -103,7 +102,6 @@ public partial class CombatManager
             BackgroundRuntime first = _activeBackgrounds[0];
             if (first.Entity == null)
             {
-                OnBackgroundWillRecycleForProcGen(first.EntityId, null);
                 _activeBackgrounds.RemoveAt(0);
                 continue;
             }
@@ -113,7 +111,6 @@ public partial class CombatManager
                 break;
             }
 
-            OnBackgroundWillRecycleForProcGen(first.EntityId, first.Entity);
             if (GameEntry.Entity.HasEntity(first.EntityId))
             {
                 GameEntry.Entity.HideEntity(first.EntityId);
@@ -191,11 +188,9 @@ public partial class CombatManager
         {
             EntityId = entityId,
             BgBlockId = request.BgBlockId,
-            SegmentIndex = request.SegmentIndex,
             Entity = bgEntity
         });
         _currentBackgroundCount = _activeBackgrounds.Count;
-        OnBackgroundShownForProcGen(entityId, request.SegmentIndex, bgEntity);
 
         if (_needStopWhenTopReachCamera)
         {

@@ -67,7 +67,6 @@ public partial class CombatManager
         _themeCursor = 0;
         _isThemeLoop = levelRow.IsLoopTheme;
         _needStopWhenTopReachCamera = false;
-        ConfigureRoadProcGenByLevel(levelRow);
         return true;
     }
 
@@ -118,8 +117,7 @@ public partial class CombatManager
         SpawnRequest request = new SpawnRequest
         {
             BgBlockId = bgBlockId,
-            SpawnPosition = spawnPosition,
-            SegmentIndex = TakeNextSegmentIndex()
+            SpawnPosition = spawnPosition
         };
         _pendingRequests[entityId] = request;
         GameEntry.Entity.ShowEntity<BgEntity>(

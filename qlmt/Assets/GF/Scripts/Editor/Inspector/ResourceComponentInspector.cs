@@ -40,6 +40,7 @@ namespace UnityGameFramework.Editor
         private SerializedProperty m_LoadResourceAgentHelperCount = null;
 
         private FieldInfo m_EditorResourceModeFieldInfo = null;
+        private FieldInfo m_ResourceManagerFieldInfo = null;
 
         private int m_ResourceModeIndex = 0;
         private HelperInfo<ResourceHelperBase> m_ResourceHelperInfo = new HelperInfo<ResourceHelperBase>("Resource");
@@ -53,7 +54,9 @@ namespace UnityGameFramework.Editor
 
             ResourceComponent t = (ResourceComponent)target;
 
-            bool isEditorResourceMode = (bool)m_EditorResourceModeFieldInfo.GetValue(target);
+            bool isEditorResourceMode = m_EditorResourceModeFieldInfo != null && (bool)m_EditorResourceModeFieldInfo.GetValue(target);
+            bool isPlayingPrefab = EditorApplication.isPlaying && IsPrefabInHierarchy(t.gameObject);
+            bool isResourceManagerReady = m_ResourceManagerFieldInfo != null && m_ResourceManagerFieldInfo.GetValue(target) != null;
 
             if (isEditorResourceMode)
             {
@@ -62,7 +65,7 @@ namespace UnityGameFramework.Editor
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
-                if (EditorApplication.isPlaying && IsPrefabInHierarchy(t.gameObject))
+                if (isPlayingPrefab && isResourceManagerReady)
                 {
                     EditorGUILayout.EnumPopup("Resource Mode", t.ResourceMode);
                 }
@@ -266,7 +269,7 @@ namespace UnityGameFramework.Editor
             }
             EditorGUI.EndDisabledGroup();
 
-            if (EditorApplication.isPlaying && IsPrefabInHierarchy(t.gameObject))
+            if (isPlayingPrefab && isResourceManagerReady)
             {
                 EditorGUILayout.LabelField("Unload Unused Assets", Utility.Text.Format("{0:F2} / {1:F2}", t.LastUnloadUnusedAssetsOperationElapseSeconds, t.MaxUnloadUnusedAssetsInterval));
                 EditorGUILayout.LabelField("Read-Only Path", t.ReadOnlyPath.ToString());
@@ -335,6 +338,10 @@ namespace UnityGameFramework.Editor
                     EditorGUILayout.EndVertical();
                 }
             }
+            else if (isPlayingPrefab)
+            {
+                EditorGUILayout.HelpBox("Resource manager is not initialized yet.", MessageType.Info);
+            }
 
             serializedObject.ApplyModifiedProperties();
 
@@ -369,6 +376,7 @@ namespace UnityGameFramework.Editor
             m_LoadResourceAgentHelperCount = serializedObject.FindProperty("m_LoadResourceAgentHelperCount");
 
             m_EditorResourceModeFieldInfo = target.GetType().GetField("m_EditorResourceMode", BindingFlags.NonPublic | BindingFlags.Instance);
+            m_ResourceManagerFieldInfo = target.GetType().GetField("m_ResourceManager", BindingFlags.NonPublic | BindingFlags.Instance);
 
             m_ResourceHelperInfo.Init(serializedObject);
             m_LoadResourceAgentHelperInfo.Init(serializedObject);

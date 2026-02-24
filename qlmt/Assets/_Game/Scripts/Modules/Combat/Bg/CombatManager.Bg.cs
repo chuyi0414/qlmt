@@ -14,7 +14,6 @@ public partial class CombatManager : GameFrameworkComponent
     {
         public int EntityId;
         public int BgBlockId;
-        public int SegmentIndex;
         public BgEntity Entity;
     }
 
@@ -25,7 +24,6 @@ public partial class CombatManager : GameFrameworkComponent
     {
         public int BgBlockId;
         public Vector3 SpawnPosition;
-        public int SegmentIndex;
     }
 
     /// <summary>
@@ -192,7 +190,6 @@ public partial class CombatManager : GameFrameworkComponent
         {
             BackgroundRuntime runtime = _activeBackgrounds[i];
             int entityId = runtime.EntityId;
-            OnBackgroundWillRecycleForProcGen(entityId, runtime.Entity);
             if (entityId > 0 && GameEntry.Entity.HasEntity(entityId))
             {
                 GameEntry.Entity.HideEntity(entityId);
@@ -206,7 +203,6 @@ public partial class CombatManager : GameFrameworkComponent
         }
         _pendingRequests.Clear();
         _currentBackgroundCount = 0;
-        ResetRoadProcGenRuntime();
     }
 
     /// <summary>
