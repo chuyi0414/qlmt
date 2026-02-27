@@ -1,3 +1,0 @@
-# id	bgPairs
-# id：关卡主题Id	bgPairs：背景块组合（格式：背景块id|数量,背景块id|数量）
-1	1|4,2|4

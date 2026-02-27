@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,20 +13,19 @@ public class MainUIForm : UIFormLogic
     /// <summary>
     /// 开始游戏
     /// </summary>
-    [SerializeField]private Button _buttonStartGame;
+    [SerializeField]
+    private Button _startGameBtn;
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
-        _buttonStartGame.onClick.AddListener(OnButtonStartGameClick);
+        _startGameBtn.onClick.AddListener(OnStartGameBtnClick);
+
     }
 
-    protected override void OnClose(bool isShutdown, object userData)
-    {
-        base.OnClose(isShutdown, userData);
-        _buttonStartGame.onClick.RemoveListener(OnButtonStartGameClick);
-    }
-
-    private void OnButtonStartGameClick()
+    /// <summary>
+    /// 开始游戏方法
+    /// </summary>
+    private void OnStartGameBtnClick()
     {
         GameFramework.Procedure.ProcedureBase currentProcedure = GameEntry.Procedure.CurrentProcedure;
         currentProcedure.ChangeState<CombatProcedure>(currentProcedure.procedureOwner);

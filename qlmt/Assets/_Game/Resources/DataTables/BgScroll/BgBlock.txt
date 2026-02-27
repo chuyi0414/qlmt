@@ -1,4 +1,0 @@
-# id	name	entityPath
-# id：背景块唯一Id	name：背景块名称	entityPath：背景实体路径（相对Prefabs/Entity）
-1	CityBlockA	Bg/BgEntity1
-2	CityBlockB	Bg/BgEntity1

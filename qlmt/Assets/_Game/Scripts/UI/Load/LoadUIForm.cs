@@ -1,44 +1,32 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 
 /// <summary>
-/// 加载界面。
+/// 加载UI
 /// </summary>
 public class LoadUIForm : UIFormLogic
 {
+    /// <summary>
+    /// 进入游戏按钮
+    /// </summary>
     [SerializeField]
-    private Button _ButtonLoad;
-
+    private Button _enterGameBtn;
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
-        _ButtonLoad.onClick.AddListener(OnButtonLoadClick);
-    }
-
-    protected override void OnOpen(object userData)
-    {
-        base.OnOpen(userData);
-    }
-
-    protected override void OnClose(bool isShutdown, object userData)
-    {
-        base.OnClose(isShutdown, userData);
-        _ButtonLoad.onClick.RemoveListener(OnButtonLoadClick);
-    }
-
-    private void OnButtonLoadClick()
-    {
-        GameFramework.Procedure.ProcedureBase currentProcedure = GameEntry.Procedure.CurrentProcedure;
-        currentProcedure.ChangeState<MainProcedure>(currentProcedure.procedureOwner);
+        _enterGameBtn.onClick.AddListener(OnEnterGameBtnClick);
     }
 
     /// <summary>
-    /// 设置加载按钮显隐。
+    /// 进入main流程
     /// </summary>
-    /// <param name="visible">是否显示按钮。</param>
-    public void SetLoadButtonVisible(bool visible)
+    private void OnEnterGameBtnClick()
     {
-        _ButtonLoad.gameObject.SetActive(visible);
+        GameFramework.Procedure.ProcedureBase currentProcedure = GameEntry.Procedure.CurrentProcedure;
+        currentProcedure.ChangeState<MainProcedure>(currentProcedure.procedureOwner);
     }
 }

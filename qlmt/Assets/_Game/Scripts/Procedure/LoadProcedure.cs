@@ -12,18 +12,8 @@ public class LoadProcedure : ProcedureBase
     private int _loadUIId;
     protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
     {
-        base.OnEnter(procedureOwner); 
-        _loadUIId = GameEntry.UI.OpenUIForm(GameAssetPath.GetUI("Load/LoadUI"),"Main");
-        if (GameEntry.DataTableManager == null)
-        {
-            Log.Error("加载全部数据表失败，DataTableManagerComponent 未挂载。");
-            return;
-        }
-
-        if (!GameEntry.DataTableManager.LoadAllDataTables())
-        {
-            Log.Error("加载全部数据表失败。");
-        }
+        base.OnEnter(procedureOwner);
+        _loadUIId = GameEntry.UI.OpenUIForm(GameAssetPath.GetUI("Load/LoadUIForm"), "Main");
     }
 
     protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
