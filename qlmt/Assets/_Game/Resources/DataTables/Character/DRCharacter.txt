@@ -1,0 +1,4 @@
+# 角色配置表
+# Id	Name	BaseStatsId	Identity	AbilityIds	PersonalityIds	AssetName
+# 角色ID	角色名称	基础属性ID	身份	异能ID列表	性格ID列表	资源名称
+1001	主角	1	Player	0	0	Character/CharacterEntity

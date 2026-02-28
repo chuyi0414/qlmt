@@ -1,5 +1,6 @@
 using GameFramework.Event;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,8 +65,26 @@ public sealed class EntityIdPoolComponent : GameFrameworkComponent
     /// </summary>
     private void Start()
     {
+        StartCoroutine(SubscribeWhenReady());
+    }
 
-        GameEntry.Event.Subscribe(HideEntityCompleteEventArgs.EventId, OnHideEntityComplete);
+    private IEnumerator SubscribeWhenReady()
+    {
+        int waitFrames = 0;
+        while (GameEntry.Event == null && waitFrames < 120)
+        {
+            waitFrames++;
+            yield return null;
+        }
+
+        _eventComponent = GameEntry.Event;
+        if (_eventComponent == null)
+        {
+            Log.Error("订阅实体隐藏事件失败，Event 组件为空。");
+            yield break;
+        }
+
+        _eventComponent.Subscribe(HideEntityCompleteEventArgs.EventId, OnHideEntityComplete);
         _isSubscribed = true;
     }
 

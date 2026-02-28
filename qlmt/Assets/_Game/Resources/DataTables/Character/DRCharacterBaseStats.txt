@@ -1,0 +1,5 @@
+# 基础属性配置表
+# Id    RaceId  RaceName    GenderId    GenderName  BaseHealth  BaseAttack  BaseMoveSpeed
+# Id    种族Id  种族名称    性别Id  性别    础生命力	基础攻击力	基础移动速度
+1	1	人类	1	男	100	10	5.0
+2	1	人类	0	女	90	8	5.5
